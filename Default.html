@@ -29,6 +29,7 @@
 						<th>Product Name</th>
 						<th>Introduction Date</th>
 						<th>URL</th>
+						<th>Edit</th>
 					</tr>
 					<tr id="loading">
 						<td colspan="100%"><img src="/loader.gif"></td>
@@ -51,6 +52,7 @@
 				<div class="panel-heading">Product Information</div>
 				
 				<div class="panel-body">
+					<input type="hidden" id = "productid" value ="0"/>
 					<div class="form-group">
 						<label for="productname">Product Name</label>
 						<input type="text" id="productname" class="form-control" />
@@ -86,6 +88,7 @@
 			dataType: 'json',
 			success: function (products) {
 				productListSuccess(products);
+				$("#loading").hide();
 			},
 			error: function (request, message, error) {
 				handleException(request, message, error);
@@ -103,7 +106,7 @@
 	
 	function productAddRow(product) {
 		// Check if <tbody> tag exists, add one if not
-		if ($("#productTable tbody").length == 0) {
+		if ($("#productTable tbody").length == 0) { //$ dung de tim kiem 
 			$("#productTable").append("<tbody></tbody>");
 		}
 		// Append row to <table>
@@ -116,6 +119,13 @@
 				"<td>" + product.ProductName + "</td>" +
 				"<td>" + product.IntroductionDate + "</td>" + 
 				"<td>" + product.Url + "</td>" +
+				"<td>" + "<button type = 'button'" + 
+					"onclick = 'productGet(this);'" +
+					"class='btn btn-default' " +
+					"data-id='" + product.ProductId + "'>" +
+					"<span class='glyphicon glyphicon-edit' />"
+					+ "</button>" +
+				"</td>"
 			"</tr>";
 		return ret;
 	}
@@ -136,6 +146,37 @@
 			productList();
 		}, 2000);
 	});
+	
+	function productGet(ctl){
+		//Get product id from data- attribute
+		var id = $(ctl).data("id");
+		
+		//Store product id in hidden field
+		$("#productid").val(id);
+		
+		//Call Web API to get a list of Products
+		$.ajax({
+			url: "/Products" + id + ".json",
+			type: 'GET',
+			dataType: 'json',
+			success: function (product) {
+				productToFields(product);
+				
+				//Change Update Button Text
+				$("#updateButton").text("Update");
+			},
+			error: function (request,message,error){
+				handleException(request,message,error);
+			}
+		});
+	}
+	
+	function productToFields(product) {
+		$("#productname").val(product.ProductName);
+		$("#introdate").val(product.IntroductionDate);
+		$("#url").val(product.Url);
+	}
+			
 	</script>
 </body>
 </html>
