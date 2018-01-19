@@ -44,7 +44,7 @@
 						<td>{{x.IntroductionDate}}</td>
 						<td>{{x.Url}}</td>
 						<td>
-							<button type = 'button' onclick = 'productGet(this)' class='btn btn-default' data-id= '{{x.ProductId}}'><span class="glyphicon glyphicon-edit"/></button>
+							<button type = 'button' ng-click = 'productGet(x.ProductId)' class='btn btn-default'><span class="glyphicon glyphicon-edit"/></button>
 						</td>
 					</tr>
 				</tbody>
@@ -54,7 +54,7 @@
 	
 	<div class = "row">
 		<div class="col-sm-6">
-			<button type="button" id="addButton" class="btn btn-primary" onclick="addClick();">Add Product</button>
+			<button type="button" id="addButton" class="btn btn-primary" ng-click = "newproduct()">Add Product</button>
 		</div><!--end class col-sm-6 -->
 	</div><!-- end class row -->
 	
@@ -65,18 +65,18 @@
 				<div class="panel-heading">Product Information</div>
 				
 				<div class="panel-body">
-					<input type="hidden" id = "productid" value ="0"/>
+					<input type="hidden" id = "productid" value ="0" ng-model= "product.ProductId"/>
 					<div class="form-group">
 						<label for="productname">Product Name</label>
-						<input type="text" id="productname" class="form-control" />
+						<input type="text" id="productname" class="form-control" ng-model = "product.ProductName"/>
 					</div> <!--end class form-group -->
 					<div class="form-group">
 						<label for="introdate">Introduction Date</label>
-						<input type="date" id="introdate" class="form-control" />
+						<input type="date" id="introdate" class="form-control" ng-model = "product.IntroductionDate"/>
 					</div> <!--end class form-group -->
 					<div class="form-group">
 						<label for="url">URL</label>
-						<input type="url" id="url" class="form-control" />
+						<input type="url" id="url" class="form-control" ng-model = "product.Url"/>
 					</div> <!--end class form-group -->
 				</div> <!--end class panel-body -->
 				
@@ -100,6 +100,18 @@
 			$scope.products = response.data;
 			$scope.loading = false;
 		});
+		
+		$scope.productGet = function(id){
+			$http.get("Products" + id + ".json").then(function(response){
+				$scope.product = response.data;
+				$scope.product.IntroductionDate = new Date(response.data.IntroductionDate);
+			});
+		};
+		
+		$scope.newproduct = function(){
+				$scope.product = new Object();
+				$scope.product.ProductId = 0;
+		};
 	});
 	</script>
 </body>
