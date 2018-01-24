@@ -33,6 +33,7 @@
 						<th>Introduction Date</th>
 						<th>URL</th>
 						<th>Edit</th>
+						<th>Delete</th>
 					</tr>
 					<tr ng-show = "loading" id="loading">
 						<td colspan="100%"><img src="/loader.gif"></td>
@@ -45,6 +46,9 @@
 						<td>{{x.Url}}</td>
 						<td>
 							<button type = 'button' ng-click = 'productGet(x.ProductId)' class='btn btn-default'><span class="glyphicon glyphicon-edit"/></button>
+						</td>
+						<td>
+							<button type = 'button' ng-click = 'productDelete(x.ProductId)' class='btn btn-default'><span class="glyphicon glyphicon-remove"/></button>
 						</td>
 					</tr>
 				</tbody>
@@ -131,6 +135,12 @@
 				$scope.newproduct();
 			}
 		};
+		
+		$scope.productDelete = function(id){
+			var index = $scope.products.findIndex(item => item.ProductId == id);
+			$scope.products.splice(index,1);
+			//$scope.newproduct();
+		};		
 		
 		$scope.product = new Object();
 		$scope.product.ProductId = 0;
