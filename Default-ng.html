@@ -83,7 +83,7 @@
 				<div class="panel-footer">
 					<div class="row">
 						<div class="col-xs-12">
-							<button type="button" id="updateButton" class="btn btn-primary" onclick="updateClick();">Add</button>
+							<button type="button" id="updateButton" class="btn btn-primary" ng-click="updateClick();">{{add}}</button>
 						</div><!--end class col-xs-12 -->
 					</div><!--end class row -->
 				</div> <!--end class panel-footer -->
@@ -95,7 +95,9 @@
 	<script>
 	var app = angular.module("myApp",[]);
 	app.controller("myCtrl", function($scope,$http){
+		$scope.add = "Add";
 		$scope.loading = true;
+		//$scope.product.ProductId = 0;
 		$http.get("Products.json").then(function(response){			
 			$scope.products = response.data;
 			$scope.loading = false;
@@ -105,13 +107,33 @@
 			$http.get("Products" + id + ".json").then(function(response){
 				$scope.product = response.data;
 				$scope.product.IntroductionDate = new Date(response.data.IntroductionDate);
+				$scope.add = "Update"
 			});
 		};
 		
 		$scope.newproduct = function(){
 				$scope.product = new Object();
 				$scope.product.ProductId = 0;
+				$scope.add = "Add"
 		};
+		
+		$scope.updateClick = function(){
+			if($scope.product.ProductId == 0){
+				//$http.post("api",product).then(...);
+				//$scope.product.IntroductionDate = new Date();
+				$scope.products.push($scope.product);
+				$scope.newproduct();
+			}
+			else{
+				//$http.put
+				var index = $scope.products.findIndex(item => item.ProductId == $scope.product.ProductId);
+				$scope.products[index] = $scope.product;
+				$scope.newproduct();
+			}
+		};
+		
+		$scope.product = new Object();
+		$scope.product.ProductId = 0;
 	});
 	</script>
 </body>
