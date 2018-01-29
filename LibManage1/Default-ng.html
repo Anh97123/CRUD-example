@@ -13,6 +13,10 @@
 
 <!-- AngularJS library -->
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.css">
+
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.js"></script>
 </head>
 
 <body>
@@ -28,16 +32,17 @@
 		<div class ="col-sm-6">
 			<table id = "productTable" class = "table table-bordered table-condensed table-striped">
 				<thead>
-					<tr>
+                    <tr ng-show="loading" id="loading">
+                        <td colspan="100%"><img src="/loader.gif"></td>
+                    </tr>
+                    <tr>
 						<th>Product Name</th>
 						<th>Introduction Date</th>
 						<th>URL</th>
 						<th>Edit</th>
 						<th>Delete</th>
 					</tr>
-					<tr ng-show = "loading" id="loading">
-						<td colspan="100%"><img src="/loader.gif"></td>
-					</tr>
+
 				</thead>
 				<tbody>
 					<tr ng-repeat="x in products">
@@ -98,17 +103,31 @@
 	</div><!--end class container -->
 	<script>
 	var app = angular.module("myApp",[]);
-	app.controller("myCtrl", function($scope,$http){
+	app.controller("myCtrl", function($scope,$http, $timeout){
 		$scope.add = "Add";
 		$scope.loading = true;
 		//$scope.product.ProductId = 0;
-		$http.get("Products.json").then(function(response){			
-			$scope.products = response.data;
+		$http.get("api/Products1").then(function (response) {
+		    $scope.products = response.data;
+		    $timeout(function () {
+		        $("#productTable").DataTable({
+		            lengthMenu: [2,5]
+		        });
+		    });
 			$scope.loading = false;
 		});
 		
+
+		$scope.refreshTable = function () {
+		    $("#productTable").DataTable().destroy();
+		    $timeout(function () {
+		        $("#productTable").DataTable();
+		    });
+		};
+
+
 		$scope.productGet = function(id){
-			$http.get("Products" + id + ".json").then(function(response){
+		    $http.get("api/Products1/" + id).then(function (response) {
 				$scope.product = response.data;
 				$scope.product.IntroductionDate = new Date(response.data.IntroductionDate);
 				$scope.add = "Update"
@@ -123,22 +142,29 @@
 		
 		$scope.updateClick = function(){
 			if($scope.product.ProductId == 0){
-				//$http.post("api",product).then(...);
-				//$scope.product.IntroductionDate = new Date();
-				$scope.products.push($scope.product);
-				$scope.newproduct();
+			    $http.post("api/Products1", $scope.product).then(function (response) {
+			        //$scope.product.IntroductionDate = new Date();
+			        $scope.products.push(response.data);
+			        $scope.newproduct();
+			        $scope.refreshTable();
+			    });
 			}
 			else{
-				//$http.put
-				var index = $scope.products.findIndex(item => item.ProductId == $scope.product.ProductId);
-				$scope.products[index] = $scope.product;
-				$scope.newproduct();
+			    $http.put("api/Products1/" + $scope.product.ProductId, $scope.product).then(function (response) {
+			        var index = $scope.products.findIndex(item => item.ProductId == $scope.product.ProductId);
+			        $scope.products[index] = $scope.product;
+			        $scope.newproduct();
+			        $scope.refreshTable();
+			    });
 			}
 		};
 		
-		$scope.productDelete = function(id){
-			var index = $scope.products.findIndex(item => item.ProductId == id);
-			$scope.products.splice(index,1);
+		$scope.productDelete = function (id) {
+		    $http.delete("api/Products1/" + id).then(function (response) {
+		        var index = $scope.products.findIndex(item => item.ProductId == id);
+		        $scope.products.splice(index, 1);
+		        $scope.refreshTable();
+		    });
 			//$scope.newproduct();
 		};		
 		
